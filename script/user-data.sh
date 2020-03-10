@@ -1,6 +1,6 @@
-vol=vol-03b76bce20fb6e760
-mount_dir = /subash
-device=/dev/xvdf/
+vol="vol-03b76bce20fb6e760"
+mount_dir =" /subash"
+device="/dev/xvdf/"
 
 if [ ! -d $mount_dir ]
 then 
