@@ -62,9 +62,6 @@ resource "aws_iam_instance_profile" "default" {
   name = "terraform-ebs"
   role = "${aws_iam_role.default.name}"
 }
-8:41
-iam.tf
-8:41
 resource "aws_launch_configuration" "default" {
  # name          = "terraform-ebs"
   image_id      = "ami-04ff587bc1c1d65e6"
