@@ -13,9 +13,24 @@ data "aws_iam_policy_document" "default" {
     ]
   }
 }
+data "aws_iam_policy_document" "ec2" {
+  statement {
+    sid = "1"
+    actions = [
+      "ec2:*"
+    ]
+    resources = [
+      "arn:aws:ec2:::*"
+    ]
+  }
+}
 resource "aws_iam_policy" "default" {
   name   = "terraform-ebs"
   policy = "${data.aws_iam_policy_document.default.json}"
+}
+resource "aws_iam_policy" "ec2" {
+  name   = "terraform-ebs-ec2"
+  policy = "${data.aws_iam_policy_document.ec2.json}"
 }
 resource "aws_iam_role" "default" {
   name = "terraform-ebs"
@@ -39,7 +54,29 @@ resource "aws_iam_role_policy_attachment" "default" {
   role       = "${aws_iam_role.default.name}"
   policy_arn = "${aws_iam_policy.default.arn}"
 }
+resource "aws_iam_role_policy_attachment" "ec2" {
+  role       = "${aws_iam_role.default.name}"
+  policy_arn = "${aws_iam_policy.ec2.arn}"
+}
 resource "aws_iam_instance_profile" "default" {
   name = "terraform-ebs"
   role = "${aws_iam_role.default.name}"
-} 
+}
+8:41
+iam.tf
+8:41
+resource "aws_launch_configuration" "default" {
+ # name          = "terraform-ebs"
+  image_id      = "ami-04ff587bc1c1d65e6"
+  instance_type = "t2.micro"
+  key_name = "terraform-ebs"
+  security_groups = ["${aws_security_group.default.id}"]
+  iam_instance_profile = "${aws_iam_instance_profile.default.name}"
+  user_data = "${data.template_file.default.rendered}"
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+data "template_file" "default" {
+  template = "${file("script/user-data.sh")}"
+}
